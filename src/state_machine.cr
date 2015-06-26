@@ -25,13 +25,14 @@ class StateMachine(T)
   end
 
   def states
-    states = Array(T).new
+    states = Set(T).new
 
-    @transitions_for.each do |event, transitions|
-      states.concat transitions.keys + transitions.values
+    @transitions_for.each_value do |transitions|
+      states.merge transitions.keys
+      states.merge transitions.values
     end
 
-    states.uniq
+    states.to_a
   end
 
   def trigger(event : Symbol)
