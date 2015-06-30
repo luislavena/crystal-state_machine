@@ -1,5 +1,7 @@
 # State Machine for Crystal
 
+[![Build Status](https://travis-ci.org/luislavena/crystal-state_machine.svg?branch=master)](https://travis-ci.org/luislavena/crystal-state_machine)
+
 Minimal State Machine, inspired by [micromachine](https://github.com/soveran/micromachine)
 
 ## Installation
