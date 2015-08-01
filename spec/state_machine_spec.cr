@@ -1,13 +1,11 @@
 require "spec"
 require "../src/state_machine"
 
-$flag_state = ""
-$current_state = ""
-
 private def new_machine
-  # reset flags
-  $flag_state = ""
-  $current_state = ""
+  flags = {
+    state:   "",
+    current: ""
+  }
 
   machine = StateMachine.new(:pending)
 
@@ -17,14 +15,14 @@ private def new_machine
 
   # callbacks
 
-  machine.on(:pending)   { $flag_state = "Pending" }
-  machine.on(:confirmed) { $flag_state = "Confirmed" }
-  machine.on(:any)       { $current_state = $flag_state }
+  machine.on(:pending)   { flags[:state] = "Pending" }
+  machine.on(:confirmed) { flags[:state] = "Confirmed" }
+  machine.on(:any)       { flags[:current] = flags[:state] }
 
-  machine
+  return machine, flags
 end
 
-machine = new_machine
+machine, _ = new_machine
 
 describe StateMachine do
   context "introspection" do
@@ -63,7 +61,7 @@ describe StateMachine do
     end
 
     it "changes the state if transition is possible" do
-      machine = new_machine
+      machine, _ = new_machine
 
       machine.trigger?(:confirm).should be_true
       machine.trigger(:confirm).should be_true
@@ -71,7 +69,7 @@ describe StateMachine do
     end
 
     it "discerns multiple transitions" do
-      machine = new_machine
+      machine, _ = new_machine
 
       machine.trigger(:confirm)
       machine.state.should eq(:confirmed)
@@ -87,7 +85,7 @@ describe StateMachine do
     end
 
     it "raises an error if event is triggered from/to a non complatible state" do
-      machine = new_machine
+      machine, _ = new_machine
 
       expect_raises StateMachine::InvalidState do
         machine.trigger!(:reset)
@@ -97,23 +95,25 @@ describe StateMachine do
 
   context "callbacks" do
     it "executes callbacks when entering a state" do
-      machine = new_machine
+      machine, flags = new_machine
+      flags[:state].should eq("")
 
       machine.trigger(:confirm)
-      $flag_state.should eq("Confirmed")
+      flags[:state].should eq("Confirmed")
 
       machine.trigger(:reset)
-      $flag_state.should eq("Pending")
+      flags[:state].should eq("Pending")
     end
 
     it "executes the callback on any transition" do
-      machine = new_machine
+      machine, flags = new_machine
+      flags[:current].should eq("")
 
       machine.trigger(:confirm)
-      $current_state.should eq("Confirmed")
+      flags[:current].should eq("Confirmed")
 
       machine.trigger(:reset)
-      $current_state.should eq("Pending")
+      flags[:current].should eq("Pending")
     end
 
     it "passing the event name to the callbacks" do
