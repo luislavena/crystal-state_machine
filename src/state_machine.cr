@@ -6,8 +6,7 @@ class StateMachine(T)
 
   def initialize(@state : T)
     @transitions_for = Hash(Symbol, Hash(T, T)).new
-
-    @callbacks = Hash(T | Symbol, Array).new { |hash, key|
+    @callbacks = Hash(T | Symbol, Array(Symbol ->)).new { |hash, key|
       hash[key] = Array(Symbol ->).new
     }
   end
