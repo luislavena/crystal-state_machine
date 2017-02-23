@@ -62,7 +62,7 @@ class StateMachine(T)
     @transitions_for[event].has_key?(@state)
   end
 
-  def when(event : Symbol, transitions : Hash(T, T))
-    @transitions_for[event] = transitions
+  def when(event : Symbol, transitions : NamedTuple)
+    @transitions_for[event] = transitions.to_h
   end
 end
