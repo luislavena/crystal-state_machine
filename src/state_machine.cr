@@ -34,8 +34,8 @@ class StateMachine(T)
     states.to_a
   end
 
-  def trigger(event : Symbol) : Bool
-    if trigger?(event)
+  def event(event : Symbol) : Bool
+    if event?(event)
       @state = @transitions_for[event][@state]
 
       (@callbacks[@state] + @callbacks[:any]).each do |callback|
@@ -48,15 +48,15 @@ class StateMachine(T)
     end
   end
 
-  def trigger!(event : Symbol) : Bool
-    if trigger(event)
+  def event!(event : Symbol) : Bool
+    if event(event)
       true
     else
       raise InvalidState.new("Event '#{event}' not valid from state '#{@state}'")
     end
   end
 
-  def trigger?(event : Symbol) : Bool
+  def event?(event : Symbol) : Bool
     raise InvalidEvent.new("Invalid event '#{event}'") unless @transitions_for.has_key?(event)
 
     @transitions_for[event].has_key?(@state)
